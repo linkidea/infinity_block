@@ -31,10 +31,10 @@
     .controls .control-button {
         font-size: 1.25rem;
     }
-    /* 모바일에서 캐릭터 선택 이미지 크기 조정 */
+    /* 모바일에서 캐릭터 선택 이미지 크기 조정 (70%) */
     .char-preview {
-        width: 160px;
-        height: 160px;
+        width: 112px;
+        height: 112px;
     }
 }
 
@@ -44,11 +44,11 @@
     --stair-width: 20vw;
     --stair-height: 20vw;
     --lane-width: 20vw; 
-    --character-size: 26vw; /* 캐릭터 크기를 1.3배 키움 (18vw * 1.3) */
+    --character-size: 23.4vw; /* 캐릭터 크기를 1.3배 키움 (18vw * 1.3) */
 
     /* 데스크톱 등 큰 화면에서 요소가 너무 커지지 않도록 최대 크기 제한 */
     --stair-max-width: 120px;
-    --character-max-size: 200px; /* 캐릭터 최대 크기를 1.3배 키움 (130px * 1.3) */
+    --character-max-size: 169px; /* 캐릭터 최대 크기를 1.3배 키움 (130px * 1.3) */
 
     /* --- 색상 변수 (Color Variables) --- */
     --color-red: #ef4444;
@@ -315,6 +315,13 @@ body {
     justify-content: center;
 }
 
+/* 시작 화면 레이아웃 조정 */
+#idle-content {
+    gap: 1.5rem; /* 요소 간 간격으로 레이아웃 조정 */
+    margin-bottom: 2rem; /* 시작 버튼과의 간격 확보 */
+}
+
+
 #game-over-content, #win-content {
     gap: 0.5rem; 
     margin-bottom: 1.5rem; 
@@ -323,7 +330,7 @@ body {
 .overlay .title {
     font-size: 3.75rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0; /* idle-content의 gap으로 제어 */
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
 }
@@ -356,15 +363,16 @@ body {
 }
 
 .character-select-label {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0; /* idle-content의 gap으로 제어 */
     font-weight: 600;
     color: var(--color-gray-200);
+    font-size: 2rem; /* 요청에 따라 글자 크기 2배로 증가 */
 }
 
 .character-selection {
     display: flex;
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0; /* idle-content의 margin-bottom으로 제어 */
     align-items: flex-start;
 }
 
@@ -378,7 +386,7 @@ body {
 .char-name {
     margin: 0;
     font-weight: 600;
-    font-size: 2rem;
+    font-size: 1.25rem;
     color: var(--color-white);
 }
 
@@ -402,10 +410,10 @@ body {
     box-shadow: 0 0 15px var(--color-white-t-70);
 }
 
-/* 캐릭터 선택 화면의 이미지 크기를 4배로 키움 */
+/* 캐릭터 선택 이미지 크기 (70%로 축소) */
 .char-preview {
-    width: 200px; /* 기존 50px -> 200px */
-    height: 200px;/* 기존 50px -> 200px */
+    width: 140px; 
+    height: 140px;
     object-fit: contain;
 }
 
@@ -452,9 +460,12 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 20%; 
+    height: 30%; /* 터치 영역 1.2배 확장 (25% -> 30%) */
     z-index: 20;
     display: flex;
+    box-sizing: border-box;
+    /* 하단 여백을 추가하여 텍스트(버튼)를 위로 올림 */
+    padding-bottom: 5%;
 }
 
 .controls.hidden {
