@@ -237,7 +237,8 @@ body {
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
-.stair img {
+/* 계단 블록 이미지에만 100% 너비를 적용하고, 아이템은 제외합니다. */
+.stair img:not(.stair-item) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -249,7 +250,7 @@ body {
     bottom: 95%; 
     left: 50%;
     transform: translateX(-50%);
-    width: 22%; 
+    width: 50%; /* 아이템 크기 */
     height: auto;
     pointer-events: none; 
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
