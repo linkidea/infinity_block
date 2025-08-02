@@ -13,6 +13,8 @@ const STAIR_HEIGHT_VW = 20; // 블록 하나의 세로 높이 (vw)
 const LANE_WIDTH_VW = 20;   // 레인 하나의 가로 너비 (vw)
 const TOTAL_STAIRS = 1000; // 게임 승리를 위한 최종 블록 수
 const HIGH_SCORE_KEY = 'infinityStairHighScore_v4'; // 로컬 저장소에 최고 점수를 저장하기 위한 키 (버전 업데이트)
+const INITIAL_LIVES = 3; // 최초 라이프 수
+const BONUS_LIFE_SCORE_INTERVAL = 100; // 보너스 라이프를 얻는 점수 간격
 
 // --- 캐릭터 에셋 (Character Assets) ---
 const CHARACTER_ASSETS = {
@@ -41,6 +43,7 @@ const ITEM_SPAWN_CHANCE = 0.2; // 20% 확률로 계단에 아이템 생성
 const scoreDisplay = document.getElementById('score-display');
 const highScoreDisplay = document.getElementById('high-score-display');
 const difficultyDisplay = document.getElementById('difficulty-display');
+const livesContainer = document.getElementById('lives-container');
 const timerContainer = document.getElementById('timer-container');
 const timerBar = document.getElementById('timer-bar');
 const stairsContainer = document.getElementById('stairs-container');
@@ -72,6 +75,8 @@ const bgSpace = document.getElementById('bg-space');
 let gameState = 'IDLE';
 let score = 0;
 let highScore = 0;
+let lives = INITIAL_LIVES;
+let nextLifeBonusScore = BONUS_LIFE_SCORE_INTERVAL;
 let stairs = [];
 let currentStairIndex = 0;
 let timeLeft = 0;
@@ -275,6 +280,19 @@ function updateUI() {
     difficultyDisplay.textContent = getDifficultyText(currentDifficulty);
     difficultyDisplay.style.display = gameState === 'PLAYING' ? 'block' : 'none';
 
+    livesContainer.innerHTML = '';
+    if (gameState === 'PLAYING') {
+        for (let i = 0; i < lives; i++) {
+            const lifeIconWrapper = document.createElement('div');
+            lifeIconWrapper.className = 'life-icon';
+            const lifeIconImg = document.createElement('img');
+            lifeIconImg.src = CHARACTER_ASSETS[selectedCharacter];
+            lifeIconImg.alt = 'Life Icon';
+            lifeIconWrapper.appendChild(lifeIconImg);
+            livesContainer.appendChild(lifeIconWrapper);
+        }
+    }
+
     // 배경 업데이트 호출
     updateBackground();
 
@@ -393,6 +411,32 @@ function goToCharacterSelect() {
     updateUI();
 }
 
+/**
+ * 플레이어가 잘못된 이동을 했을 때 호출됩니다.
+ */
+function handleMistake() {
+    if (isJumping) return; // 점프 중에는 실수로 간주하지 않음
+    
+    lives--;
+
+    if (lives <= 0) {
+        updateUI(); // 마지막 라이프 감소를 UI에 반영
+        setGameOver();
+    } else {
+        // 실수 피드백으로 캐릭터 깜빡임
+        character.style.animation = 'blink-effect 1s ease-in-out';
+        setTimeout(() => {
+            character.style.animation = '';
+        }, 1000);
+        
+        // 타이머를 리셋하여 기회를 줌
+        const timeLimit = getTimeLimitForDifficulty(getDifficulty(score));
+        timeLeft = timeLimit;
+        updateUI(); // 라이프 감소 및 타이머 리셋을 UI에 반영
+    }
+}
+
+
 function handleChangeDirectionAndMove() {
     if (gameState !== 'PLAYING' || isJumping) return;
     nextDirection = (nextDirection === 'LEFT') ? 'RIGHT' : 'LEFT';
@@ -417,6 +461,12 @@ function handleMove() {
         currentStairIndex++;
         score++;
         
+        if (score >= nextLifeBonusScore) {
+            lives++;
+            nextLifeBonusScore += BONUS_LIFE_SCORE_INTERVAL;
+            showFloatingText('+1 LIFE!');
+        }
+
         if (score >= TOTAL_STAIRS) {
             setGameWin();
             return;
@@ -428,7 +478,7 @@ function handleMove() {
         updateUI();
         handleItemCollection(); // 이동 후 아이템 확인
     } else {
-        setGameOver();
+        handleMistake();
     }
 }
 
@@ -477,6 +527,8 @@ function resetGame() {
 
     score = 0;
     currentStairIndex = 0;
+    lives = INITIAL_LIVES;
+    nextLifeBonusScore = BONUS_LIFE_SCORE_INTERVAL;
     timeLeft = getTimeLimitForDifficulty('EASY');
     gameState = 'PLAYING';
     isJumping = false;
